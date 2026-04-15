@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+/*
+ * Journi palette — warm wanderlust, not tech-corporate.
+ * Soft terracottas, warm creams, deep teals.
+ */
+:root {
+  --color-cream: #faf6f0;
+  --color-cream-dark: #f0e9dc;
+  --color-ink: #1f1b16;
+  --color-ink-soft: #4a4138;
+  --color-terracotta: #c97b5c;
+  --color-terracotta-deep: #a85a3d;
+  --color-teal: #1d5e5f;
+  --color-teal-deep: #134445;
+  --color-amber: #d99b3a;
+  --color-sage: #7a8c6e;
+}
+
+@theme inline {
+  --color-cream: var(--color-cream);
+  --color-cream-dark: var(--color-cream-dark);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-terracotta: var(--color-terracotta);
+  --color-terracotta-deep: var(--color-terracotta-deep);
+  --color-teal: var(--color-teal);
+  --color-teal-deep: var(--color-teal-deep);
+  --color-amber: var(--color-amber);
+  --color-sage: var(--color-sage);
+
+  --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-fraunces);
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Subtle paper texture for the cream background */
+.cream-grain {
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(201, 123, 92, 0.06), transparent 55%),
+    radial-gradient(circle at 80% 90%, rgba(29, 94, 95, 0.05), transparent 55%);
+}

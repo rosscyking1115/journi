@@ -1,0 +1,109 @@
+// Journi — database schema
+// Supabase Postgres + Prisma. Run `npx prisma db push` after editing.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  subscription Subscription?
+  trips        Trip[]
+}
+
+model Subscription {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  stripeCustomerId String   @unique
+  stripePriceId    String
+  status           String // active | trialing | canceled | past_due
+  currentPeriodEnd DateTime
+  createdAt        DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Trip {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String // e.g. "Tulips in Netherlands"
+  intent      String // original user input
+  destination String?
+  startDate   DateTime?
+  endDate     DateTime?
+  duration    Int? // days
+  status      String    @default("draft") // draft | planned | completed
+  isShared    Boolean   @default(false)
+  shareToken  String?   @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user  User       @relation(fields: [userId], references: [id])
+  nodes TripNode[]
+  edges TripEdge[]
+}
+
+model TripNode {
+  id          String  @id @default(cuid())
+  tripId      String
+  type        String // intent | place | activity | timing | warning | tip
+  label       String
+  description String?
+
+  // Location
+  placeName String?
+  placeId   String?
+  latitude  Float?
+  longitude Float?
+
+  // Seasonal intelligence
+  bestMonths  Int[]
+  avoidMonths Int[]
+  seasonNote  String?
+
+  // Practical info
+  openingHours    Json?
+  bookingRequired Boolean @default(false)
+  bookingLeadDays Int?
+  priceRange      String? // free | £ | ££ | £££
+  duration        String?
+
+  // Trust & extras
+  confidence String   @default("ai") // ai | verified | live
+  warnings   String[]
+  tips       String[]
+
+  // React Flow layout
+  positionX Float   @default(0)
+  positionY Float   @default(0)
+  expanded  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  trip        Trip       @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  sourceEdges TripEdge[] @relation("SourceNode")
+  targetEdges TripEdge[] @relation("TargetNode")
+}
+
+model TripEdge {
+  id       String  @id @default(cuid())
+  tripId   String
+  sourceId String
+  targetId String
+  label    String?
+
+  trip   Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  source TripNode @relation("SourceNode", fields: [sourceId], references: [id])
+  target TripNode @relation("TargetNode", fields: [targetId], references: [id])
+}
